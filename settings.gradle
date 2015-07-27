@@ -1,0 +1,3 @@
+include ':app', ':alex', ':football'
+project(':alex').projectDir = new File('alexandria/app')
+project(':football').projectDir = new File('Football_Scores_Code/Football_Scores-master/app')
