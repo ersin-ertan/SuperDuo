@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+	<!--android:initialKeyguardLayout = "@layout/keyguard"-->
+	<!--android:configure = "barqsoft.footballscores.AppWidgetConfigure"-->
+<appwidget-provider
+
+	android:initialLayout = "@layout/appwidget"
+	android:minHeight = "120dp"
+	android:minWidth = "240dp"
+	android:previewImage = "@drawable/scores"
+	android:resizeMode = "horizontal"
+	android:updatePeriodMillis = "86400000"
+	android:widgetCategory = "home_screen|keyguard"
+	xmlns:android = "http://schemas.android.com/apk/res/android"
+	>
+</appwidget-provider>

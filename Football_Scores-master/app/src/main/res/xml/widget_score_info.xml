@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--android:initialLayout = "@layout/example_appwidget"-->
+<appwidget-provider
+	android:minHeight = "120dp"
+	android:minWidth = "240dp"
+	android:previewImage = "@drawable/scores"
+	android:resizeMode = "horizontal|vertical"
+	android:updatePeriodMillis = "86400000"
+	xmlns:android = "http://schemas.android.com/apk/res/android"
+	>
+</appwidget-provider>
+
+
+	<!--android:widgetCategory = "home_screen"-->
+<!--api 17+-->
+
+	<!--android:configure="com.example.android.ExampleAppWidgetConfigure"-->
+	<!--optional-->
