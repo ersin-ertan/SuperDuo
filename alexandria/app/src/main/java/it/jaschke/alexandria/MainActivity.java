@@ -28,7 +28,8 @@ public class MainActivity extends ActionBarActivity
 		implements NavigationDrawerFragment.NavigationDrawerCallbacks,
 		           Callback,
 		           ZXingScannerView.ResultHandler,
-		           AddBook.AddToMain{
+		           AddBook.AddToMain,
+		           ScannerFragment.ScannerResult{
 
 	public static final String MESSAGE_EVENT = "MESSAGE_EVENT";
 	public static final String MESSAGE_KEY = "MESSAGE_EXTRA";
@@ -100,9 +101,9 @@ public class MainActivity extends ActionBarActivity
 		}
 
 		fragmentManager.beginTransaction()
-		               .replace(R.id.container, nextFragment)
+				.replace(R.id.container, nextFragment)
 //		               .addToBackStack((String) title)
-		               .commit();
+				.commit();
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu){
@@ -155,6 +156,7 @@ public class MainActivity extends ActionBarActivity
 	public void scanBook(){
 		showDialog();
 	}
+
 	void showDialog(){
 		android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
@@ -178,11 +180,27 @@ public class MainActivity extends ActionBarActivity
 		super.onBackPressed();
 	}
 	@Override
-	public void handleResult(final Result result){
+	public void handleResult(final Result result){ // I don't think this does anything
 		AddBook addBook = (AddBook) getSupportFragmentManager().findFragmentByTag(getResources().getString(R.string.scan));
 		if(addBook != null){
 			((EditText) addBook.getView().findViewById(R.id.ean)).setText(result.getText());
 			getSupportFragmentManager().popBackStack();
+		}
+	}
+	@Override
+	public void getResult(String result){
+		String r = result;
+
+		AddBook addBook = (AddBook) getSupportFragmentManager().findFragmentByTag(getResources().getString(R.string.scan));
+		getSupportFragmentManager().popBackStack();// removes the scanner activity
+		if(addBook != null){
+			addBook.loadResults(result);
+		}
+		else{
+			addBook = AddBook.newBook(result);
+			getSupportFragmentManager().beginTransaction()
+			                           .replace(R.id.container, addBook, getResources().getString(R.string.scan))
+			                           .commit();
 		}
 	}
 

@@ -41,7 +41,15 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 	private String mScanContents = "Contents:";
 
 
-	public AddBook(){
+	public AddBook(){}
+
+	public static AddBook newBook(String isbn){
+		String id = isbn;
+		Bundle b = new Bundle();
+		b.putString("isbn", isbn);
+		AddBook ab = new AddBook();
+		ab.setArguments(b);
+		return ab;
 	}
 
 
@@ -53,8 +61,26 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 		}
 	}
 
+	public void loadResults(String result){
+		String id = result;
+		ean = (EditText) getActivity().findViewById(R.id.ean);
+		ean.setText("");
+		ean.setText(result);
+
+	}
+
+	@Override
+	public void onViewCreated(final View view, final Bundle savedInstanceState){
+		super.onViewCreated(view, savedInstanceState);
+		Bundle b = getArguments();
+		if(b != null){
+			loadResults(b.getString("isbn"));
+		}
+
+	}
 	@Override
 	public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+
 
 		rootView = inflater.inflate(R.layout.fragment_add_book, container, false);
 		ean = (EditText) rootView.findViewById(R.id.ean);
@@ -78,17 +104,22 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 					ean = "978" + ean;
 				}
 				if(ean.length() < 13){
-					clearFields();
+					if(ean.length() > 10){
+						clearFields();
+
+					}
 					return;
 				}
 				//Once we have an ISBN, start a book intent
-				Intent bookIntent = new Intent(getActivity(), BookService.class);
-				bookIntent.putExtra(BookService.EAN, ean);
-				bookIntent.setAction(BookService.FETCH_BOOK);
-				getActivity().startService(bookIntent);
-				AddBook.this.restartLoader();
+				if(checkNetworkConnectivity()){
+					Intent bookIntent = new Intent(getActivity(), BookService.class);
+					bookIntent.putExtra(BookService.EAN, ean);
+					bookIntent.setAction(BookService.FETCH_BOOK);
+					getActivity().startService(bookIntent);
+					AddBook.this.restartLoader();
 
-				Toast.makeText(getActivity(), "Book Auto Added", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getActivity(), "Book Auto Added", Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 
@@ -117,6 +148,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 					@Override
 					public void onClick(View view){
 						ean.setText("");
+						clearFields();
 					}
 				});
 		rootView.findViewById(R.id.delete_button).
@@ -128,6 +160,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 						                   bookIntent.setAction(BookService.DELETE_BOOK);
 						                   getActivity().startService(bookIntent);
 						                   ean.setText("");
+						                   clearFields();
 					                   }
 				                   }
 				);
@@ -192,18 +225,23 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 		((TextView) rootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
 
 		String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
-		String[] authorsArr = authors.split(",");
-		((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
-		((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",", "\n"));
+		if(authors != null){
+			String[] authorsArr = authors.split(",");
+			((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
+			((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",", "\n"));
+		}
 		String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
-		if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-			new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
-			rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
+		if(imgUrl != null){
+			if(Patterns.WEB_URL.matcher(imgUrl).matches()){
+				new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
+				rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
+			}
 		}
 
 		String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
-		((TextView) rootView.findViewById(R.id.categories)).setText(categories);
-
+		if(categories != null){
+			((TextView) rootView.findViewById(R.id.categories)).setText(categories);
+		}
 		rootView.findViewById(R.id.save_button).setVisibility(View.VISIBLE);
 		rootView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
 	}

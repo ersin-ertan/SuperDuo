@@ -1,6 +1,7 @@
 package it.jaschke.alexandria;// Created by ersin on 10/07/15
 
 
+import android.app.Activity;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -63,7 +64,6 @@ public class ScannerFragment extends Fragment implements MessageDialogFragment.M
 		super.onCreate(state);
 		setHasOptionsMenu(true);
 	}
-
 
 
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
@@ -159,9 +159,28 @@ public class ScannerFragment extends Fragment implements MessageDialogFragment.M
 			r.play();
 		}
 		catch(Exception e){}
-		showMessageDialog("Contents = " + rawResult.getText() + ", Format = " + rawResult.getBarcodeFormat().toString());
+//		showMessageDialog("Contents = " + rawResult.getText() + ", Format = " + rawResult.getBarcodeFormat().toString());
+		String result = rawResult.getText();
+		if(result != null){
+			scannerResult.getResult(result);
+		}
+
 	}
 
+
+	ScannerResult scannerResult;
+
+	public interface ScannerResult{
+		void getResult(String result);
+	}
+
+	@Override
+	public void onAttach(final Activity activity){
+		super.onAttach(activity);
+		if(activity != null){
+			scannerResult = (ScannerResult) activity;
+		}
+	}
 	public void showMessageDialog(String message){
 		DialogFragment fragment = MessageDialogFragment.newInstance("Scan Results", message, this);
 		fragment.show(getActivity().getSupportFragmentManager(), "scan_results");
